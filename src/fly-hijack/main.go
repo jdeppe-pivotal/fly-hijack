@@ -33,8 +33,11 @@ func main() {
 		"-t", instance,
 		"hijack",
 		"-j", fmt.Sprintf("%s/%s", parts[PIPELINE], parts[JOB]),
-		"-b", parts[BUILD],
 	}
+
+        if len(parts) > BUILD {
+		args = append(args, "-b", parts[BUILD])
+        }
 
 	err := syscall.Exec("/usr/local/bin/fly", args, os.Environ())
 	if err != nil {
