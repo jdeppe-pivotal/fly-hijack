@@ -15,9 +15,9 @@ import (
 )
 
 const (
-	PIPELINE = 3
-	JOB      = 5
-	BUILD    = 7
+	PIPELINE = 4
+	JOB      = 6
+	BUILD    = 8
 )
 
 func main() {
