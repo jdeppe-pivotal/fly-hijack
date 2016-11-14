@@ -19,7 +19,7 @@ It uses the given URL to infer the correct target by matching against what you h
 
 ### Get it
 
-Pre-built binaries can be found in [Releases](releases)
+Pre-built binaries can be found in [Releases](https://github.com/jdeppe-pivotal/fly-hijack/releases)
 
 ### Building
 
