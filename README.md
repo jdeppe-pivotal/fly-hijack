@@ -17,19 +17,26 @@ The tool assumes you're using Concourse >= 2.x which introduced teams. Also assu
 
 It uses the given URL to infer the correct target by matching against what you have in `~/.flyrc`. You can also provide an explicit target using the `-t` option.
 
+### Get it
+
+Pre-built binaries can be found in [Releases](releases)
+
 ### Building
 
 Requires using [govendor](https://github.com/kardianos/govendor) for dependencies.
 
+If you'd like to build the tool you should be able to do this:
+
 ```
+git clone https://github.com/jdeppe-pivotal/fly-hijack
+cd fly-hijack
+export GOPATH=$PWD
+export PATH=$PATH:$GOPATH/bin
 go get github.com/kardianos/govendor
-```
-
-Assuming you've cloned this repo, then do:
-
-```
 cd src/fly-hijack
 govendor sync
 cd -
 go build fly-hijack
 ```
+
+This will leave you with the `fly-hijack` binary in your current directory.
