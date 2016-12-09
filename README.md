@@ -33,10 +33,10 @@ cd fly-hijack
 export GOPATH=$PWD
 export PATH=$PATH:$GOPATH/bin
 go get github.com/kardianos/govendor
-cd src/fly-hijack
+cd src/fly-src
 govendor sync
 cd -
-go build fly-hijack
+go build fly-utils/fly-hijack
 ```
 
 This will leave you with the `fly-hijack` binary in your current directory.

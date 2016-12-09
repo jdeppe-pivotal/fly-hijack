@@ -7,11 +7,8 @@ import (
 	"fmt"
 	"syscall"
 	"os"
-	"errors"
-	"path"
-	"io/ioutil"
-	"gopkg.in/yaml.v2"
 	"net/url"
+	"fly-utils/flyrc"
 )
 
 const (
@@ -38,12 +35,12 @@ func main() {
 	if instance == "" {
 		hostPart := fmt.Sprintf("%s://%s", u.Scheme, u.Host)
 
-		instance, err = getTarget(hostPart)
+		instance, err = flyrc.GetTarget(hostPart)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
-	
+
 	args := []string{
 		"fly",
 		"-t", instance,
@@ -61,37 +58,3 @@ func main() {
 	}
 }
 
-type Flyrc struct {
-	Targets map[string]flyrcTarget `yaml:"targets"`
-}
-
-type flyrcTarget struct {
-	Api string `yaml:"api"`
-}
-
-func getTarget(host string) (string, error) {
-	home := os.Getenv("HOME")
-	if home == "" {
-		return "", errors.New("Unable to determine users' HOME - is $HOME set?")
-	}
-
-	flyrcData, err := ioutil.ReadFile(path.Join(home, ".flyrc"))
-	if err != nil {
-		return "", err
-	}
-
-	f := Flyrc{}
-	err = yaml.Unmarshal(flyrcData, &f)
-	if err != nil {
-		return "", err
-	}
-
-
-	for k, v := range f.Targets {
-		if v.Api == host {
-			return k, nil
-		}
-	}
-
-	return "", errors.New("Unable to match URL with target in ~/.flyrc")
-}
