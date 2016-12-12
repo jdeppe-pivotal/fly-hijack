@@ -33,9 +33,11 @@ func main() {
 
 	// We didn't give -t option
 	if instance == "" {
-		hostPart := fmt.Sprintf("%s://%s", u.Scheme, u.Host)
-
-		instance, err = flyrc.GetTarget(hostPart)
+		rc, err := flyrc.NewFlyrc()
+		if err != nil {
+			log.Fatal(err)
+		}
+		instance, err = rc.GetTarget(u)
 		if err != nil {
 			log.Fatal(err)
 		}
