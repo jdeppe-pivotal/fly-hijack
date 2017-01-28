@@ -39,7 +39,7 @@ func NewFlyrc() (*Flyrc, error) {
 	f := &Flyrc{}
 	err = yaml.Unmarshal(flyrcData, f)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(fmt.Sprintf("Error unmarshalling ~/.flyrc: %s", err));
 	}
 
 	return f, nil

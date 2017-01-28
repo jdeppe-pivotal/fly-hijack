@@ -57,16 +57,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	build, err := getBuild(u)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	eventUrl, err := url.Parse(fmt.Sprintf("%s://%s/api/v1/builds/%d/events", u.Scheme, u.Host, build.Id))
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	cookies := []*http.Cookie{
 		{
 			Name: "ATC-Authorization",
@@ -82,6 +72,16 @@ func main() {
 		Jar: cookieJar,
 	}
 
+	build, err := getBuild(u, client)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	eventUrl, err := url.Parse(fmt.Sprintf("%s://%s/api/v1/builds/%d/events", u.Scheme, u.Host, build.Id))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	request, err := http.NewRequest("GET", eventUrl.String(), nil)
 	if err != nil {
 		log.Fatal(err)
@@ -89,7 +89,7 @@ func main() {
 
 	stream, err := eventsource.SubscribeWith("", client, request)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(fmt.Sprintf("Unable to subscribe to event source: %s", err))
 	}
 
 	showTask := false
@@ -120,11 +120,11 @@ func main() {
 	}
 }
 
-func getBuild(u *url.URL) (*Build, error) {
+func getBuild(u *url.URL, client *http.Client) (*Build, error) {
 	apiUrl := u
 	apiUrl.Path = fmt.Sprintf("/api/v1%s", apiUrl.Path)
 
-	resp, err := http.Get(apiUrl.String())
+	resp, err := client.Get(apiUrl.String())
 	defer resp.Body.Close()
 	if err != nil {
 		log.Fatal(err)
@@ -138,7 +138,7 @@ func getBuild(u *url.URL) (*Build, error) {
 	var build Build
 	err = json.Unmarshal(body, &build)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(fmt.Sprintf("Unable to unmarshall getBuild response: %s %s", body, err))
 	}
 
 	return &build, nil
