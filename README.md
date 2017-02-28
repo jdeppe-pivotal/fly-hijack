@@ -33,7 +33,7 @@ cd fly-hijack
 export GOPATH=$PWD
 export PATH=$PATH:$GOPATH/bin
 go get github.com/kardianos/govendor
-cd src/fly-src
+cd src/fly-utils
 govendor sync
 cd -
 go build fly-utils/fly-hijack
