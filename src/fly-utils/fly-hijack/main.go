@@ -9,12 +9,13 @@ import (
 	"os"
 	"net/url"
 	"fly-utils/flyrc"
+	"os/exec"
 )
 
 const (
 	PIPELINE = 4
-	JOB      = 6
-	BUILD    = 8
+	JOB = 6
+	BUILD = 8
 )
 
 func main() {
@@ -43,6 +44,10 @@ func main() {
 		}
 	}
 
+	if len(parts) < JOB + 1 {
+		log.Fatal("URL appears too short - make sure it at least contains a 'jobs' value")
+	}
+
 	args := []string{
 		"fly",
 		"-t", instance,
@@ -54,7 +59,12 @@ func main() {
 		args = append(args, "-b", parts[BUILD])
 	}
 
-	err = syscall.Exec("/usr/local/bin/fly", args, os.Environ())
+	flyPath, err := exec.LookPath("fly")
+	if err != nil {
+		log.Fatal("Unable to find 'fly' executable in your PATH")
+	}
+
+	err = syscall.Exec(flyPath, args, os.Environ())
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Unable to launch fly: %s", err))
 	}
