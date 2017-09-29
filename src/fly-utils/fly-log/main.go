@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"github.com/donovanhide/eventsource"
-	"net/http/cookiejar"
 	"fly-utils/flyrc"
 	"io/ioutil"
 	"encoding/json"
@@ -57,22 +56,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	cookies := []*http.Cookie{
-		{
-			Name: "ATC-Authorization",
-			Value: fmt.Sprintf("Bearer %s", token),
-		},
+	cookie := &http.Cookie{
+		Name:  "ATC-Authorization",
+		Value: fmt.Sprintf("Bearer %s", token),
 	}
 
-	baseUrl, _ := url.Parse(fmt.Sprintf("%s://%s/", u.Scheme, u.Host))
-	cookieJar, _ := cookiejar.New(nil)
-	cookieJar.SetCookies(baseUrl, cookies)
-
-	client := &http.Client{
-		Jar: cookieJar,
-	}
-
-	build, err := getBuild(u, client)
+	build, err := getBuild(u, cookie)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -86,6 +75,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	request.AddCookie(cookie)
+	var client = &http.Client{}
 
 	stream, err := eventsource.SubscribeWith("", client, request)
 	if err != nil {
@@ -120,11 +112,20 @@ func main() {
 	}
 }
 
-func getBuild(u *url.URL, client *http.Client) (*Build, error) {
+func getBuild(u *url.URL, cookie *http.Cookie) (*Build, error) {
 	apiUrl := u
 	apiUrl.Path = fmt.Sprintf("/api/v1%s", apiUrl.Path)
 
-	resp, err := client.Get(apiUrl.String())
+	req, err := http.NewRequest("GET", apiUrl.String(), nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	req.AddCookie(cookie)
+	req.Header.Set("Accept", "*/*")
+
+	var client = &http.Client{}
+	resp, err := client.Do(req)
 	defer resp.Body.Close()
 	if err != nil {
 		log.Fatal(err)
