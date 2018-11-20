@@ -1,41 +1,41 @@
 package main
 
 import (
-	"flag"
-	"net/url"
-	"log"
-	"fmt"
-	"net/http"
-	"github.com/donovanhide/eventsource"
-	"fly-utils/flyrc"
-	"io/ioutil"
 	"encoding/json"
+	"flag"
+	"fly-utils/flyrc"
+	"fmt"
+	"github.com/donovanhide/eventsource"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"net/url"
 )
 
 type Build struct {
-	ApiUrl       string  `json:"api_url"`
-	EndTime      int     `json:"end_time"`
-	Id           int     `json:"id"`
-	JobName      string  `json:"job_name"`
-	Name         string  `json:"name"`
-	PipelineName string  `json:"pipeline_name"`
-	StartTime    int     `json:"start_time"`
-	Status       string  `json:"status"`
-	TeamName     string  `json:"team_name"`
-	Url          string  `json:"url"`
+	ApiUrl       string `json:"api_url"`
+	EndTime      int    `json:"end_time"`
+	Id           int    `json:"id"`
+	JobName      string `json:"job_name"`
+	Name         string `json:"name"`
+	PipelineName string `json:"pipeline_name"`
+	StartTime    int    `json:"start_time"`
+	Status       string `json:"status"`
+	TeamName     string `json:"team_name"`
+	Url          string `json:"url"`
 }
 
 type EventData struct {
-	Data  struct {
-			  Origin  struct {
-						  Source string `json:"source",omitempty`
-					  }                 `json:"origin",omitempty`
-			  Payload string            `json:"payload",omitempty`
-		      Time    int               `json:"time",omitempty`
-		      ExitStatus int            `json:"exit_status",omitempty`
-			  Status string             `json:"status",omitempty`
-		  }                             `json:"data",omitempty`
-	Event string                        `json:"event",omitempty`
+	Data struct {
+		Origin struct {
+			Source string `json:"source",omitempty`
+		} `json:"origin",omitempty`
+		Payload    string `json:"payload",omitempty`
+		Time       int    `json:"time",omitempty`
+		ExitStatus int    `json:"exit_status",omitempty`
+		Status     string `json:"status",omitempty`
+	} `json:"data",omitempty`
+	Event string `json:"event",omitempty`
 }
 
 func main() {
@@ -57,13 +57,13 @@ func main() {
 	}
 
 	cookie := &http.Cookie{
-		Name:  "ATC-Authorization",
+		Name:  "skymarshal_auth",
 		Value: fmt.Sprintf("Bearer %s", token),
 	}
 
 	build, err := getBuild(u, cookie)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(fmt.Sprintf("Unable to get build: %s", err))
 	}
 
 	eventUrl, err := url.Parse(fmt.Sprintf("%s://%s/api/v1/builds/%d/events", u.Scheme, u.Host, build.Id))
@@ -128,12 +128,12 @@ func getBuild(u *url.URL, cookie *http.Cookie) (*Build, error) {
 	resp, err := client.Do(req)
 	defer resp.Body.Close()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(fmt.Sprintf("Error calling endpoint for build: %s", err))
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(fmt.Sprintf("Error reading body from endpoint for build: %s", err))
 	}
 
 	var build Build
