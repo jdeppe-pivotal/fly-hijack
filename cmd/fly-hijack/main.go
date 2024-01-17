@@ -2,20 +2,20 @@ package main
 
 import (
 	"flag"
-	"log"
-	"strings"
-	"fmt"
-	"syscall"
-	"os"
-	"net/url"
 	"fly-utils/flyrc"
+	"fmt"
+	"log"
+	"net/url"
+	"os"
 	"os/exec"
+	"strings"
+	"syscall"
 )
 
 const (
 	PIPELINE = 4
-	JOB = 6
-	BUILD = 8
+	JOB      = 6
+	BUILD    = 8
 )
 
 func main() {
@@ -44,8 +44,16 @@ func main() {
 		}
 	}
 
-	if len(parts) < JOB + 1 {
+	if len(parts) < JOB+1 {
 		log.Fatal("URL appears too short - make sure it at least contains a 'jobs' value")
+	}
+
+	var team = ""
+	for i, part := range parts {
+		if part == "teams" {
+			team = parts[i+1]
+			break
+		}
 	}
 
 	args := []string{
@@ -53,6 +61,10 @@ func main() {
 		"-t", instance,
 		"hijack",
 		"-j", fmt.Sprintf("%s/%s", parts[PIPELINE], parts[JOB]),
+	}
+
+	if team != "" {
+		args = append(args, "--team", team)
 	}
 
 	if len(parts) > BUILD {
@@ -69,4 +81,3 @@ func main() {
 		log.Fatal(fmt.Sprintf("Unable to launch fly: %s", err))
 	}
 }
-

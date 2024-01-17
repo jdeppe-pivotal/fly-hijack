@@ -23,20 +23,12 @@ Pre-built binaries can be found in [Releases](https://github.com/jdeppe-pivotal/
 
 ### Building
 
-Requires using [govendor](https://github.com/kardianos/govendor) for dependencies.
-
 If you'd like to build the tool you should be able to do this:
 
 ```
 git clone https://github.com/jdeppe-pivotal/fly-hijack
 cd fly-hijack
-export GOPATH=$PWD
-export PATH=$PATH:$GOPATH/bin
-go get github.com/kardianos/govendor
-cd src/fly-utils
-govendor sync
-cd -
-go build fly-utils/fly-hijack
+go build -o . ./...
 ```
 
 This will leave you with the `fly-hijack` binary in your current directory.
